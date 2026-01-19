@@ -5,14 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ultimate Flange | Industrial Precision Solutions</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js" type="module"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary-blue: #1e40af;
             --secondary-blue: #3b82f6;
             --accent-blue: #60a5fa;
+            --primary-green: #10b981;
+            --primary-orange: #f59e0b;
+            --primary-purple: #8b5cf6;
         }
         
         body {
@@ -37,6 +40,144 @@
         
         .hero-gradient {
             background: linear-gradient(135deg, rgba(30, 64, 175, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+        }
+        
+        /* Dashboard Styles */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: calc(100vh - 80px);
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+        }
+        
+        .sidebar-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+        
+        .sidebar-menu-item:hover, .sidebar-menu-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .dashboard-card:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        
+        .stat-card.sales {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+        }
+        
+        .stat-card.orders {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        }
+        
+        .stat-card.customers {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+            transition: width 1s ease;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .table-container table {
+            min-width: 100%;
+        }
+        
+        .table-container th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #475569;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .table-container td {
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #475569;
+        }
+        
+        .table-container tr:hover td {
+            background: #f1f5f9;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .badge-success {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
         }
         
         /* Enhanced Animations */
@@ -122,8 +263,8 @@
             box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08);
         }
         
-        /* 3D Viewer Styles */
-        .model-viewer-container {
+        /* Hero Image Container */
+        .hero-image-container {
             width: 100%;
             height: 400px;
             border-radius: 16px;
@@ -133,124 +274,10 @@
             position: relative;
         }
         
-        /* 3D Viewer Controls */
-        .model-controls {
-            position: absolute;
-            bottom: 16px;
-            left: 16px;
-            right: 16px;
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            z-index: 10;
-        }
-        
-        .model-control-btn {
-            background: rgba(30, 64, 175, 0.85);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .model-control-btn:hover {
-            background: rgba(30, 64, 175, 1);
-            transform: translateY(-2px);
-        }
-        
-        model-viewer {
-            --poster-color: transparent;
-            --progress-bar-color: #3b82f6;
-            --progress-bar-height: 3px;
-            --progress-mask: none;
-        }
-        
-        .ar-button {
-            position: absolute;
-            bottom: 16px;
-            right: 16px;
-            background: rgba(30, 64, 175, 0.9);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-        
-        .ar-button:hover {
-            background: rgba(30, 64, 175, 1);
-            transform: translateY(-2px);
-        }
-        
-        /* Loading state for 3D viewer */
-        .model-viewer-container.loading::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
+        .hero-image-container img {
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, #f0f4f8 25%, #e2e8f0 50%, #f0f4f8 75%);
-            background-size: 200% 100%;
-            animation: loadingShimmer 1.5s infinite;
-            z-index: 1;
-        }
-        
-        @keyframes loadingShimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-        
-        /* 3D Controls */
-        .rotation-control {
-            position: absolute;
-            top: 16px;
-            left: 16px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 12px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            z-index: 10;
-            width: 200px;
-        }
-        
-        .rotation-control label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
-        }
-        
-        .rotation-control input[type="range"] {
-            width: 100%;
-            height: 4px;
-            background: #e5e7eb;
-            border-radius: 2px;
-            outline: none;
-        }
-        
-        .rotation-control input[type="range"]::-webkit-slider-thumb {
-            appearance: none;
-            width: 16px;
-            height: 16px;
-            background: #3b82f6;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid white;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            object-fit: cover;
         }
         
         /* Enhanced Search */
@@ -328,22 +355,6 @@
             display: none !important;
         }
         
-        #order-modal .bg-green-500 {
-            background-color: #10b981;
-        }
-        
-        #order-modal .bg-green-600 {
-            background-color: #059669;
-        }
-        
-        #order-modal .bg-green-700 {
-            background-color: #047857;
-        }
-        
-        #order-modal .bg-green-800 {
-            background-color: #065f46;
-        }
-        
         /* Step indicators */
         .step-indicator {
             width: 10px;
@@ -362,8 +373,8 @@
             background-color: #10b981;
         }
         
-        /* 3D Model Thumbnails */
-        .model-thumbnail {
+        /* Product Thumbnails */
+        .product-thumbnail {
             width: 100%;
             height: 180px;
             border-radius: 12px;
@@ -376,18 +387,18 @@
             cursor: pointer;
         }
         
-        .model-thumbnail:hover {
+        .product-thumbnail:hover {
             transform: translateY(-4px);
             box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
         }
         
-        .model-thumbnail img {
+        .product-thumbnail img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
         
-        .model-placeholder {
+        .product-placeholder {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -395,10 +406,64 @@
             color: #64748b;
         }
         
-        .model-placeholder i {
+        .product-placeholder i {
             font-size: 48px;
             margin-bottom: 12px;
             color: #94a3b8;
+        }
+        
+        /* Product Image Container */
+        .product-image-container {
+            width: 100%;
+            height: 400px;
+            border-radius: 16px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .product-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #f8fafc;
+        }
+        
+        /* Gallery Product Cards */
+        .gallery-product-card {
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .gallery-product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Tabs */
+        .tab-button {
+            padding: 12px 24px;
+            border: none;
+            background: none;
+            font-weight: 500;
+            color: #64748b;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .tab-button.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
         }
     </style>
 </head>
@@ -429,7 +494,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-2">Password</label>
-                        <input type="password" required placeholder="••••••••" 
+                        <input type="password" id="login-password" required placeholder="••••••••" 
                                class="w-full px-5 py-3.5 rounded-xl border-2 border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition">
                     </div>
                     <div class="flex items-center justify-between">
@@ -439,6 +504,24 @@
                         </label>
                         <a href="#" class="text-sm text-blue-600 font-medium hover:text-blue-800">Forgot password?</a>
                     </div>
+                    
+                    <!-- User Type Selection -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Login As</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" onclick="setUserType('partner')" 
+                                    class="px-4 py-3 rounded-lg border-2 border-blue-200 bg-blue-50 text-blue-700 font-medium flex items-center justify-center gap-2">
+                                <i class="fas fa-user-shield"></i>
+                                Partner
+                            </button>
+                            <button type="button" onclick="setUserType('supplier')" 
+                                    class="px-4 py-3 rounded-lg border-2 border-slate-200 hover:border-blue-200 hover:bg-blue-50 font-medium flex items-center justify-center gap-2">
+                                <i class="fas fa-building"></i>
+                                Supplier
+                            </button>
+                        </div>
+                    </div>
+                    
                     <button type="submit" 
                             class="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-800 text-white font-bold rounded-xl hover:from-blue-700 hover:to-blue-900 transition-all transform hover:-translate-y-1 active:scale-95 shadow-lg shadow-blue-100 hover:shadow-xl">
                         <i class="fas fa-sign-in-alt mr-2"></i>Login to Portal
@@ -762,6 +845,850 @@
         </div>
     </div>
 
+    <!-- Dashboard Modal (Only for Supplier Accounts) -->
+    <div id="dashboard-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+        <div class="bg-white w-full max-w-7xl h-[90vh] rounded-3xl shadow-2xl overflow-hidden relative flex flex-col">
+            <div class="px-8 pt-8 pb-4 border-b border-slate-200">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-3xl font-bold text-slate-900">Supplier Dashboard</h2>
+                        <p class="text-slate-600 mt-1">Manage your orders, inventory, and customer interactions</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="relative group">
+                            <button class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 hover:bg-slate-200 transition">
+                                <i class="fas fa-bell"></i>
+                            </button>
+                            <span class="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
+                        </div>
+                        <button onclick="closeDashboard()" class="text-slate-400 hover:text-slate-700">
+                            <i class="fas fa-times text-2xl"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Dashboard Tabs -->
+                <div class="flex gap-1 mt-6 border-b border-slate-200">
+                    <button onclick="switchDashboardTab('overview')" class="tab-button active">
+                        <i class="fas fa-chart-bar mr-2"></i>Overview
+                    </button>
+                    <button onclick="switchDashboardTab('orders')" class="tab-button">
+                        <i class="fas fa-shopping-cart mr-2"></i>Orders
+                    </button>
+                    <button onclick="switchDashboardTab('inventory')" class="tab-button">
+                        <i class="fas fa-boxes mr-2"></i>Inventory
+                    </button>
+                    <button onclick="switchDashboardTab('customers')" class="tab-button">
+                        <i class="fas fa-users mr-2"></i>Customers
+                    </button>
+                    <button onclick="switchDashboardTab('analytics')" class="tab-button">
+                        <i class="fas fa-chart-line mr-2"></i>Analytics
+                    </button>
+                    <button onclick="switchDashboardTab('settings')" class="tab-button">
+                        <i class="fas fa-cog mr-2"></i>Settings
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Dashboard Content -->
+            <div class="flex-1 overflow-auto p-8">
+                <!-- Overview Tab -->
+                <div id="dashboard-overview" class="tab-content active space-y-8">
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="stat-card sales">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm opacity-90">Total Revenue</p>
+                                    <h3 class="text-3xl font-bold mt-2">₹2,847,500</h3>
+                                    <p class="text-sm mt-2 flex items-center">
+                                        <i class="fas fa-arrow-up mr-1"></i> 12.5% from last month
+                                    </p>
+                                </div>
+                                <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-rupee-sign text-2xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card orders">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm opacity-90">Active Orders</p>
+                                    <h3 class="text-3xl font-bold mt-2">47</h3>
+                                    <p class="text-sm mt-2 flex items-center">
+                                        <i class="fas fa-clock mr-1"></i> 8 pending approval
+                                    </p>
+                                </div>
+                                <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-shopping-cart text-2xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card customers">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm opacity-90">Active Customers</p>
+                                    <h3 class="text-3xl font-bold mt-2">156</h3>
+                                    <p class="text-sm mt-2 flex items-center">
+                                        <i class="fas fa-user-plus mr-1"></i> +12 this month
+                                    </p>
+                                </div>
+                                <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-users text-2xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm opacity-90">Inventory Value</p>
+                                    <h3 class="text-3xl font-bold mt-2">₹5,620,000</h3>
+                                    <p class="text-sm mt-2 flex items-center">
+                                        <i class="fas fa-box mr-1"></i> 87 items in stock
+                                    </p>
+                                </div>
+                                <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-warehouse text-2xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Charts and Recent Orders -->
+                    <div class="grid lg:grid-cols-2 gap-8">
+                        <!-- Sales Chart -->
+                        <div class="dashboard-card">
+                            <h3 class="font-bold text-lg text-slate-900 mb-4">Revenue Trend</h3>
+                            <div class="h-64">
+                                <canvas id="salesChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Recent Orders -->
+                        <div class="dashboard-card">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-bold text-lg text-slate-900">Recent Orders</h3>
+                                <a href="#" class="text-blue-600 text-sm font-medium hover:text-blue-800">View All</a>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                                    <div>
+                                        <div class="font-medium">#ORD-7842</div>
+                                        <div class="text-sm text-slate-500">Weld Neck Flange</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-medium">₹245,000</div>
+                                        <span class="badge badge-warning">Processing</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                                    <div>
+                                        <div class="font-medium">#ORD-7841</div>
+                                        <div class="text-sm text-slate-500">Long Weld Neck</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-medium">₹187,500</div>
+                                        <span class="badge badge-success">Shipped</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                                    <div>
+                                        <div class="font-medium">#ORD-7840</div>
+                                        <div class="text-sm text-slate-500">Blind Flange</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-medium">₹92,300</div>
+                                        <span class="badge badge-danger">Pending</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                                    <div>
+                                        <div class="font-medium">#ORD-7839</div>
+                                        <div class="text-sm text-slate-500">Plasma CNC Cutting</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-medium">₹315,800</div>
+                                        <span class="badge badge-info">Approved</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Stats -->
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="dashboard-card">
+                            <h3 class="font-bold text-lg text-slate-900 mb-4">Order Status</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm">Pending Approval</span>
+                                        <span class="text-sm font-medium">8</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 17%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm">In Production</span>
+                                        <span class="text-sm font-medium">15</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 32%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm">Ready to Ship</span>
+                                        <span class="text-sm font-medium">12</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 26%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm">Delivered</span>
+                                        <span class="text-sm font-medium">12</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 26%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <h3 class="font-bold text-lg text-slate-900 mb-4">Top Products</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-fire text-blue-600"></i>
+                                        </div>
+                                        <div>
+                                            <div class="font-medium">Weld Neck Flange</div>
+                                            <div class="text-sm text-slate-500">₹1.2M revenue</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-lg font-bold">42%</div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-ruler-vertical text-green-600"></i>
+                                        </div>
+                                        <div>
+                                            <div class="font-medium">Long Weld Neck</div>
+                                            <div class="text-sm text-slate-500">₹850K revenue</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-lg font-bold">30%</div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-bolt text-purple-600"></i>
+                                        </div>
+                                        <div>
+                                            <div class="font-medium">Plasma CNC</div>
+                                            <div class="text-sm text-slate-500">₹620K revenue</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-lg font-bold">22%</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <h3 class="font-bold text-lg text-slate-900 mb-4">Quick Actions</h3>
+                            <div class="space-y-3">
+                                <button class="w-full py-3 bg-blue-50 text-blue-700 rounded-lg font-medium hover:bg-blue-100 transition flex items-center justify-center gap-2">
+                                    <i class="fas fa-plus"></i> Add New Product
+                                </button>
+                                <button class="w-full py-3 bg-green-50 text-green-700 rounded-lg font-medium hover:bg-green-100 transition flex items-center justify-center gap-2">
+                                    <i class="fas fa-file-invoice"></i> Create Invoice
+                                </button>
+                                <button class="w-full py-3 bg-purple-50 text-purple-700 rounded-lg font-medium hover:bg-purple-100 transition flex items-center justify-center gap-2">
+                                    <i class="fas fa-chart-bar"></i> Generate Report
+                                </button>
+                                <button class="w-full py-3 bg-orange-50 text-orange-700 rounded-lg font-medium hover:bg-orange-100 transition flex items-center justify-center gap-2">
+                                    <i class="fas fa-box"></i> Update Inventory
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Orders Tab -->
+                <div id="dashboard-orders" class="tab-content hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-slate-900">Order Management</h3>
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+                            <i class="fas fa-plus"></i> New Order
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="font-medium">#ORD-7842</td>
+                                    <td>Oil & Gas Corp</td>
+                                    <td>Weld Neck Flange</td>
+                                    <td>50</td>
+                                    <td class="font-bold">₹245,000</td>
+                                    <td><span class="badge badge-warning">Processing</span></td>
+                                    <td>2024-03-15</td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 mr-3">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">#ORD-7841</td>
+                                    <td>PowerGen Ltd</td>
+                                    <td>Long Weld Neck</td>
+                                    <td>25</td>
+                                    <td class="font-bold">₹187,500</td>
+                                    <td><span class="badge badge-success">Shipped</span></td>
+                                    <td>2024-03-14</td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 mr-3">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">#ORD-7840</td>
+                                    <td>Marine Solutions</td>
+                                    <td>Blind Flange</td>
+                                    <td>100</td>
+                                    <td class="font-bold">₹92,300</td>
+                                    <td><span class="badge badge-danger">Pending</span></td>
+                                    <td>2024-03-13</td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 mr-3">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">#ORD-7839</td>
+                                    <td>Chemical Process</td>
+                                    <td>Plasma CNC Cutting</td>
+                                    <td>1</td>
+                                    <td class="font-bold">₹315,800</td>
+                                    <td><span class="badge badge-info">Approved</span></td>
+                                    <td>2024-03-12</td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 mr-3">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">#ORD-7838</td>
+                                    <td>Construction Co</td>
+                                    <td>Slip-On Flange</td>
+                                    <td>200</td>
+                                    <td class="font-bold">₹156,400</td>
+                                    <td><span class="badge badge-success">Delivered</span></td>
+                                    <td>2024-03-10</td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 mr-3">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Inventory Tab -->
+                <div id="dashboard-inventory" class="tab-content hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-slate-900">Inventory Management</h3>
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+                            <i class="fas fa-plus"></i> Add Stock
+                        </button>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="dashboard-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-sm text-slate-500">Total Items</div>
+                                    <div class="text-3xl font-bold mt-1">87</div>
+                                </div>
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-boxes text-blue-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dashboard-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-sm text-slate-500">Low Stock Items</div>
+                                    <div class="text-3xl font-bold mt-1">12</div>
+                                </div>
+                                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dashboard-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-sm text-slate-500">Out of Stock</div>
+                                    <div class="text-3xl font-bold mt-1">3</div>
+                                </div>
+                                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-times-circle text-orange-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>SKU</th>
+                                    <th>Current Stock</th>
+                                    <th>Reorder Level</th>
+                                    <th>Value</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="font-medium">Weld Neck Flange DN50</td>
+                                    <td>SKU-WNF-50</td>
+                                    <td>250</td>
+                                    <td>100</td>
+                                    <td class="font-bold">₹1,250,000</td>
+                                    <td><span class="badge badge-success">In Stock</span></td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 mr-3">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">Long Weld Neck DN100</td>
+                                    <td>SKU-LWN-100</td>
+                                    <td>85</td>
+                                    <td>50</td>
+                                    <td class="font-bold">₹850,000</td>
+                                    <td><span class="badge badge-warning">Low Stock</span></td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 mr-3">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">Blind Flange DN80</td>
+                                    <td>SKU-BF-80</td>
+                                    <td>0</td>
+                                    <td>25</td>
+                                    <td class="font-bold">₹0</td>
+                                    <td><span class="badge badge-danger">Out of Stock</span></td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 mr-3">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">Slip-On Flange DN40</td>
+                                    <td>SKU-SOF-40</td>
+                                    <td>120</td>
+                                    <td>75</td>
+                                    <td class="font-bold">₹480,000</td>
+                                    <td><span class="badge badge-success">In Stock</span></td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 mr-3">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">Puddle Flange DN150</td>
+                                    <td>SKU-PF-150</td>
+                                    <td>45</td>
+                                    <td>30</td>
+                                    <td class="font-bold">₹675,000</td>
+                                    <td><span class="badge badge-warning">Low Stock</span></td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 mr-3">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Customers Tab -->
+                <div id="dashboard-customers" class="tab-content hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-slate-900">Customer Management</h3>
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+                            <i class="fas fa-user-plus"></i> Add Customer
+                        </button>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-6 mb-8">
+                        <div class="dashboard-card">
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-building text-blue-600 text-2xl"></i>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-slate-500">Total Customers</div>
+                                    <div class="text-3xl font-bold mt-1">156</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dashboard-card">
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-star text-green-600 text-2xl"></i>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-slate-500">Active Customers</div>
+                                    <div class="text-3xl font-bold mt-1">128</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dashboard-card">
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-medal text-purple-600 text-2xl"></i>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-slate-500">Premium Clients</div>
+                                    <div class="text-3xl font-bold mt-1">42</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Company</th>
+                                    <th>Industry</th>
+                                    <th>Total Orders</th>
+                                    <th>Total Spent</th>
+                                    <th>Last Order</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="font-medium">Rajesh Kumar</td>
+                                    <td>Oil & Gas Corp</td>
+                                    <td>Oil & Gas</td>
+                                    <td>24</td>
+                                    <td class="font-bold">₹2,450,000</td>
+                                    <td>2024-03-15</td>
+                                    <td><span class="badge badge-success">Active</span></td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 mr-3">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">Priya Sharma</td>
+                                    <td>PowerGen Ltd</td>
+                                    <td>Power Generation</td>
+                                    <td>18</td>
+                                    <td class="font-bold">₹1,875,000</td>
+                                    <td>2024-03-14</td>
+                                    <td><span class="badge badge-success">Active</span></td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 mr-3">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">Amit Patel</td>
+                                    <td>Marine Solutions</td>
+                                    <td>Marine & Offshore</td>
+                                    <td>12</td>
+                                    <td class="font-bold">₹923,000</td>
+                                    <td>2024-03-13</td>
+                                    <td><span class="badge badge-success">Active</span></td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 mr-3">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">Suresh Nair</td>
+                                    <td>Chemical Process</td>
+                                    <td>Chemical</td>
+                                    <td>8</td>
+                                    <td class="font-bold">₹1,580,000</td>
+                                    <td>2024-02-28</td>
+                                    <td><span class="badge badge-warning">Inactive</span></td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 mr-3">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">Meena Reddy</td>
+                                    <td>Construction Co</td>
+                                    <td>Construction</td>
+                                    <td>15</td>
+                                    <td class="font-bold">₹1,564,000</td>
+                                    <td>2024-03-10</td>
+                                    <td><span class="badge badge-success">Active</span></td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 mr-3">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Analytics Tab -->
+                <div id="dashboard-analytics" class="tab-content hidden">
+                    <div class="mb-6">
+                        <h3 class="text-2xl font-bold text-slate-900">Business Analytics</h3>
+                        <p class="text-slate-600 mt-2">Detailed insights and performance metrics</p>
+                    </div>
+                    
+                    <div class="grid lg:grid-cols-2 gap-8 mb-8">
+                        <div class="dashboard-card">
+                            <h4 class="font-bold text-lg text-slate-900 mb-4">Revenue by Product Category</h4>
+                            <div class="h-64">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="dashboard-card">
+                            <h4 class="font-bold text-lg text-slate-900 mb-4">Monthly Performance</h4>
+                            <div class="h-64">
+                                <canvas id="performanceChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="dashboard-card">
+                            <h4 class="font-bold text-lg text-slate-900 mb-4">Order Conversion Rate</h4>
+                            <div class="text-center py-8">
+                                <div class="relative inline-block">
+                                    <canvas id="conversionChart" width="200" height="200"></canvas>
+                                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+                                        <div class="text-3xl font-bold text-blue-600">68%</div>
+                                        <div class="text-sm text-slate-500">Conversion</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <h4 class="font-bold text-lg text-slate-900 mb-4">Top Performing Industries</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span>Oil & Gas</span>
+                                        <span class="font-medium">42%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 42%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span>Power Generation</span>
+                                        <span class="font-medium">28%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 28%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span>Chemical</span>
+                                        <span class="font-medium">18%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 18%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span>Marine</span>
+                                        <span class="font-medium">12%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 12%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <h4 class="font-bold text-lg text-slate-900 mb-4">Customer Retention</h4>
+                            <div class="text-center py-8">
+                                <div class="text-5xl font-bold text-green-600 mb-2">92%</div>
+                                <div class="text-slate-600">Retention Rate</div>
+                                <div class="text-sm text-slate-500 mt-4">Industry Average: 85%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings Tab -->
+                <div id="dashboard-settings" class="tab-content hidden">
+                    <div class="mb-6">
+                        <h3 class="text-2xl font-bold text-slate-900">Account Settings</h3>
+                        <p class="text-slate-600 mt-2">Manage your supplier account preferences</p>
+                    </div>
+                    
+                    <div class="grid lg:grid-cols-2 gap-8">
+                        <div class="dashboard-card">
+                            <h4 class="font-bold text-lg text-slate-900 mb-4">Company Information</h4>
+                            <form class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Company Name</label>
+                                    <input type="text" value="Ultimate Flange Manufacturing" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Contact Email</label>
+                                    <input type="email" value="supplier@ultimateflange.com" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Phone Number</label>
+                                    <input type="tel" value="+91 7307709671" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                                </div>
+                                <button type="button" class="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition">
+                                    Update Information
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <h4 class="font-bold text-lg text-slate-900 mb-4">Notification Preferences</h4>
+                            <div class="space-y-3">
+                                <label class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                                    <div>
+                                        <div class="font-medium">New Order Notifications</div>
+                                        <div class="text-sm text-slate-500">Get notified for new orders</div>
+                                    </div>
+                                    <input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded">
+                                </label>
+                                <label class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                                    <div>
+                                        <div class="font-medium">Low Stock Alerts</div>
+                                        <div class="text-sm text-slate-500">Receive low inventory alerts</div>
+                                    </div>
+                                    <input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded">
+                                </label>
+                                <label class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                                    <div>
+                                        <div class="font-medium">Payment Notifications</div>
+                                        <div class="text-sm text-slate-500">Get payment status updates</div>
+                                    </div>
+                                    <input type="checkbox" class="w-6 h-6 text-blue-600 rounded">
+                                </label>
+                                <label class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                                    <div>
+                                        <div class="font-medium">Monthly Reports</div>
+                                        <div class="text-sm text-slate-500">Receive monthly sales reports</div>
+                                    </div>
+                                    <input type="checkbox" checked class="w-6 h-6 text-blue-600 rounded">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="mobile-menu fixed inset-y-0 right-0 w-64 bg-white shadow-2xl z-50 p-6">
         <div class="flex justify-between items-center mb-8">
@@ -778,9 +1705,13 @@
             <a href="#contact" onclick="toggleMobileMenu()" class="block text-slate-700 hover:text-blue-600 font-medium py-2">Contact</a>
             <div class="pt-4 border-t">
                 <div id="mobile-user-status" class="px-3 py-2 bg-slate-100 rounded-lg text-sm font-bold text-slate-600 mb-4">Partner</div>
-                <button onclick="logout()" class="w-full text-left text-slate-500 hover:text-red-600 font-medium py-2">
-                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
-                </button>
+                <div class="space-y-2">
+                    <!-- Dashboard button will be added dynamically for suppliers only -->
+                    <button onclick="logout()" class="w-full text-left text-slate-500 hover:text-red-600 font-medium py-2 flex items-center gap-2">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -812,6 +1743,7 @@
                             <div id="user-status" class="px-3 py-1.5 bg-blue-50 rounded-full text-xs font-bold text-blue-600 uppercase border border-blue-100">
                                 <i class="fas fa-user-shield mr-1"></i>Partner
                             </div>
+                            <!-- Dashboard button will be added dynamically for suppliers only -->
                             <button onclick="logout()" class="text-slate-400 hover:text-red-600 transition text-xs font-bold uppercase tracking-wider">
                                 <i class="fas fa-sign-out-alt mr-1"></i>Logout
                             </button>
@@ -877,33 +1809,120 @@
                     
                     <div class="flex-1 w-full">
                         <div class="relative">
-                            <div class="model-viewer-container">
-                                <model-viewer 
-                                    id="hero-model-viewer"
-                                    src="https://modelviewer.dev/shared-assets/models/Astronaut.glb" 
-                                    alt="Industrial Flange 3D Model"
-                                    auto-rotate
-                                    camera-controls
-                                    shadow-intensity="1"
-                                    ar
-                                    ar-modes="scene-viewer quick-look"
-                                    style="width:100%; height:100%;"
-                                >
-                                    <button slot="ar-button" class="ar-button">
-                                        <i class="fas fa-vr-cardboard mr-2"></i>View in AR
-                                    </button>
-                                    <div class="model-controls">
-                                        <button onclick="resetModelView('hero')" class="model-control-btn">
-                                            <i class="fas fa-redo"></i> Reset
-                                        </button>
-                                        <button onclick="toggleAutoRotate('hero')" class="model-control-btn">
-                                            <i class="fas fa-play"></i> Auto Rotate
-                                        </button>
-                                        <button onclick="downloadHeroModel()" class="model-control-btn">
-                                            <i class="fas fa-download"></i> CAD
-                                        </button>
+                            <!-- Hero Image Container -->
+                            <div class="hero-image-container">
+                                <img src="industry.png.png" alt="Industrial Flange Manufacturing Facility" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- What Are Flanges Section -->
+                <div class="mt-20 pt-16 border-t border-slate-200 reveal">
+                    <div class="text-center mb-12">
+                        <h2 class="text-4xl font-bold text-slate-900 mb-4">Understanding Flanges</h2>
+                        <p class="text-slate-600 max-w-3xl mx-auto text-lg">Essential components in industrial piping systems that ensure secure connections and operational reliability</p>
+                    </div>
+                    
+                    <div class="grid lg:grid-cols-2 gap-8 items-start">
+                        <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-lg">
+                            <div class="flex items-start gap-4 mb-6">
+                                <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-link text-blue-600 text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-slate-900 mb-3">What Are Flanges?</h3>
+                                    <p class="text-slate-600 leading-relaxed">
+                                        Flanges are widely used in numerous applications across engineering and industries as they play vital roles as linkages between pipes, valves, pumps, and others. They offer an opportunity to connect or link various elements of a system in a way that is mechanically possible. Generally, flanges are anhedral circular plates with holes arranged uniformly along their circumference for bolts or studs that join them.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-blue-50 rounded-2xl p-6">
+                                <h4 class="font-bold text-blue-800 mb-3 flex items-center gap-2">
+                                    <i class="fas fa-cogs"></i>Primary Functions
+                                </h4>
+                                <ul class="space-y-2 text-blue-700">
+                                    <li class="flex items-start gap-2"><i class="fas fa-check-circle text-green-500 mt-1"></i>Secure connection between pipeline components</li>
+                                    <li class="flex items-start gap-2"><i class="fas fa-check-circle text-green-500 mt-1"></i>Easy assembly and disassembly for maintenance</li>
+                                    <li class="flex items-start gap-2"><i class="fas fa-check-circle text-green-500 mt-1"></i>Pressure containment and leak prevention</li>
+                                    <li class="flex items-start gap-2"><i class="fas fa-check-circle text-green-500 mt-1"></i>System flexibility and expansion capability</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-lg">
+                            <div class="flex items-start gap-4 mb-6">
+                                <div class="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-industry text-green-600 text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-slate-900 mb-3">Our Manufacturing Capabilities</h3>
+                                    <p class="text-slate-600 leading-relaxed">
+                                        We specialize in precision manufacturing of industrial components with comprehensive material options and rapid production capabilities.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="font-bold text-slate-800 mb-3 text-lg">Flanges We Manufacture</h4>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div class="bg-slate-50 p-3 rounded-xl">
+                                            <div class="flex items-center gap-2">
+                                                <i class="fas fa-circle text-blue-500 text-xs"></i>
+                                                <span class="font-medium">MS Plate Flange</span>
+                                            </div>
+                                        </div>
+                                        <div class="bg-slate-50 p-3 rounded-xl">
+                                            <div class="flex items-center gap-2">
+                                                <i class="fas fa-circle text-blue-500 text-xs"></i>
+                                                <span class="font-medium">Forged Flange</span>
+                                            </div>
+                                        </div>
+                                        <div class="bg-slate-50 p-3 rounded-xl">
+                                            <div class="flex items-center gap-2">
+                                                <i class="fas fa-circle text-blue-500 text-xs"></i>
+                                                <span class="font-medium">Weld Neck Flanges</span>
+                                            </div>
+                                        </div>
+                                        <div class="bg-slate-50 p-3 rounded-xl">
+                                            <div class="flex items-center gap-2">
+                                                <i class="fas fa-circle text-blue-500 text-xs"></i>
+                                                <span class="font-medium">Special/Ring as per drawing</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                </model-viewer>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-bold text-slate-800 mb-3 text-lg">Additional Products</h4>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div class="bg-slate-50 p-3 rounded-xl">
+                                            <div class="flex items-center gap-2">
+                                                <i class="fas fa-circle text-green-500 text-xs"></i>
+                                                <span class="font-medium">Pipes Fitting (B/W & S/W)</span>
+                                            </div>
+                                            <p class="text-xs text-slate-500 mt-1 pl-4">Elbow, Bend, Tee, Reducer, Cap, Coupling, Union</p>
+                                        </div>
+                                        <div class="bg-slate-50 p-3 rounded-xl">
+                                            <div class="flex items-center gap-2">
+                                                <i class="fas fa-circle text-green-500 text-xs"></i>
+                                                <span class="font-medium">Pipes</span>
+                                            </div>
+                                            <p class="text-xs text-slate-500 mt-1 pl-4">Round & Square Pipes</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gradient-to-r from-blue-50 to-green-50 rounded-2xl p-5">
+                                    <h4 class="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                                        <i class="fas fa-boxes"></i>Material Inventory
+                                    </h4>
+                                    <p class="text-slate-600 text-sm">
+                                        Our comprehensive inventory includes stainless steel, mild steel, alloy steel, and other unique materials, allowing us to commence production immediately upon receiving your order. We hold a wide stock range of austenitic 300 series, mild, alloy, and other unique stainless steel qualities, and we can begin fabrication immediately after placing the order.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -916,74 +1935,53 @@
             <div class="max-w-7xl mx-auto px-4">
                 <div class="flex flex-col items-center gap-10">
                     <div class="text-center max-w-3xl mx-auto">
-                        <span class="text-blue-600 font-bold uppercase tracking-widest text-sm">3D Product Catalog</span>
-                        <h2 class="text-4xl font-bold text-slate-900 mt-2 mb-4">Interactive 3D Models</h2>
-                        <p class="text-slate-600 text-lg">Explore our products in 3D - rotate, zoom, and examine every detail</p>
+                        <span class="text-blue-600 font-bold uppercase tracking-widest text-sm">Product Catalog</span>
+                        <h2 class="text-4xl font-bold text-slate-900 mt-2 mb-4">Explore Our Products</h2>
+                        <p class="text-slate-600 text-lg">Browse our extensive range of industrial flanges and precision components</p>
                     </div>
                     
-                    <!-- 3D Model Thumbnails Grid -->
+                    <!-- Product Thumbnails Grid -->
                     <div class="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12 reveal stagger-delay-1">
                         <!-- Weld Neck Flange -->
-                        <div class="model-thumbnail" onclick="updateProduct('wnf')">
-                            <div class="model-placeholder">
-                                <i class="fas fa-fire"></i>
-                                <span class="font-semibold mt-2">Weld Neck Flange</span>
-                            </div>
+                        <div class="product-thumbnail" onclick="updateProduct('wnf')">
+                            <img src="weld neck.png" alt="Weld Neck Flange" />
                         </div>
                         
                         <!-- Long Weld Neck -->
-                        <div class="model-thumbnail" onclick="updateProduct('lwn')">
-                            <div class="model-placeholder">
-                                <i class="fas fa-ruler-vertical"></i>
-                                <span class="font-semibold mt-2">Long Weld Neck</span>
-                            </div>
+                        <div class="product-thumbnail" onclick="updateProduct('lwn')">
+                            <img src="long weldneck.png" alt="Long Weld Neck Flange" />
                         </div>
                         
                         <!-- Slip-On Flange -->
-                        <div class="model-thumbnail" onclick="updateProduct('slipon')">
-                            <div class="model-placeholder">
-                                <i class="fas fa-sliders-h"></i>
-                                <span class="font-semibold mt-2">Slip-On Flange</span>
-                            </div>
+                        <div class="product-thumbnail" onclick="updateProduct('slipon')">
+                            <img src="slip on flange.png" alt="Slip-On Flange" />
                         </div>
                         
                         <!-- Blind Flange -->
-                        <div class="model-thumbnail" onclick="updateProduct('blind')">
-                            <div class="model-placeholder">
-                                <i class="fas fa-ban"></i>
-                                <span class="font-semibold mt-2">Blind Flange</span>
-                            </div>
+                        <div class="product-thumbnail" onclick="updateProduct('blind')">
+                            <img src="blind.png" alt="Blind Flange" />
                         </div>
                         
                         <!-- Puddle Flange -->
-                        <div class="model-thumbnail" onclick="updateProduct('puddle')">
-                            <div class="model-placeholder">
-                                <i class="fas fa-water"></i>
-                                <span class="font-semibold mt-2">Puddle Flange</span>
-                            </div>
+                        <div class="product-thumbnail" onclick="updateProduct('puddle')">
+                            <img src="puddle flange.png" alt="Puddle Flange" />
                         </div>
                         
                         <!-- Plasma CNC -->
-                        <div class="model-thumbnail" onclick="updateProduct('plasma')">
-                            <div class="model-placeholder">
-                                <i class="fas fa-bolt"></i>
-                                <span class="font-semibold mt-2">Plasma CNC</span>
-                            </div>
+                        <div class="product-thumbnail" onclick="updateProduct('plasma')">
+                            <img src="plasma cutiing.png" alt="Plasma CNC Cutting" />
                         </div>
                         
                         <!-- Profile Cutting -->
-                        <div class="model-thumbnail" onclick="updateProduct('profile')">
-                            <div class="model-placeholder">
-                                <i class="fas fa-cut"></i>
-                                <span class="font-semibold mt-2">Profile Cutting</span>
-                            </div>
+                        <div class="product-thumbnail" onclick="updateProduct('profile')">
+                            <img src="images/profile-cutting.jpg" alt="Profile Cutting Services" />
                         </div>
                         
                         <!-- All Products -->
-                        <div class="model-thumbnail bg-gradient-to-br from-blue-600 to-blue-800" onclick="showAllModels()">
-                            <div class="model-placeholder text-white">
-                                <i class="fas fa-cube"></i>
-                                <span class="font-semibold mt-2">View All Models</span>
+                        <div class="product-thumbnail bg-gradient-to-br from-blue-600 to-blue-800" onclick="showAllProducts()">
+                            <div class="product-placeholder text-white">
+                                <i class="fas fa-boxes"></i>
+                                <span class="font-semibold mt-2">View All Products</span>
                             </div>
                         </div>
                     </div>
@@ -1028,108 +2026,78 @@
             </div>
         </section>
 
-        <!-- Product Details Section with 3D Viewer -->
+        <!-- Product Details Section -->
         <section id="products" class="py-20 bg-slate-50 reveal">
             <div class="max-w-7xl mx-auto px-4">
                 <div class="bg-white p-8 md:p-12 rounded-3xl border border-slate-100 transition-all duration-500 shadow-lg" id="product-card">
                     <div class="prose prose-slate max-w-none">
-                        <!-- 3D Model Viewer Section -->
+                        <!-- Product Image Section -->
                         <div class="mb-12 reveal stagger-delay-1">
                             <div class="flex flex-col lg:flex-row gap-8 items-start">
-                                <!-- 3D Model Viewer -->
+                                <!-- Product Image -->
                                 <div class="flex-1">
-                                    <div class="model-viewer-container" id="product-model-container">
-                                        <model-viewer 
-                                            id="product-model-viewer"
-                                            src="https://modelviewer.dev/shared-assets/models/Astronaut.glb" 
-                                            alt="3D Product Model"
-                                            auto-rotate
-                                            camera-controls
-                                            shadow-intensity="1"
-                                            ar
-                                            ar-modes="scene-viewer quick-look"
-                                            style="width:100%; height:100%;"
-                                        >
-                                            <button slot="ar-button" class="ar-button">
-                                                <i class="fas fa-vr-cardboard mr-2"></i>View in AR
-                                            </button>
-                                            <div class="rotation-control">
-                                                <label for="rotation-speed">Rotation Speed</label>
-                                                <input type="range" id="rotation-speed" min="0" max="5" value="1" step="0.5">
-                                                <label for="zoom-level" class="mt-4">Zoom Level</label>
-                                                <input type="range" id="zoom-level" min="1" max="10" value="5">
-                                            </div>
-                                            <div class="model-controls">
-                                                <button onclick="resetModelView('product')" class="model-control-btn">
-                                                    <i class="fas fa-redo"></i> Reset View
-                                                </button>
-                                                <button onclick="toggleAutoRotate('product')" class="model-control-btn">
-                                                    <i class="fas fa-play"></i> Auto Rotate
-                                                </button>
-                                                <button onclick="downloadCurrentModel()" class="model-control-btn">
-                                                    <i class="fas fa-download"></i> Download CAD
-                                                </button>
-                                                <button onclick="takeScreenshot()" class="model-control-btn">
-                                                    <i class="fas fa-camera"></i> Screenshot
-                                                </button>
-                                            </div>
-                                        </model-viewer>
+                                    <div class="product-image-container" id="product-image-container">
+                                        <img src="long weldneck.png" alt="Long Weld Neck Flange" id="product-main-image" />
                                     </div>
                                 </div>
                                 
-                                <!-- Model Info & Controls -->
+                                <!-- Product Info -->
                                 <div class="flex-1">
                                     <div class="bg-gradient-to-br from-slate-900 to-blue-900 rounded-2xl p-6 text-white h-full">
                                         <h4 class="text-xl font-bold mb-4 flex items-center gap-2">
-                                            <i class="fas fa-info-circle text-blue-300"></i>3D Model Information
+                                            <i class="fas fa-info-circle text-blue-300"></i>Product Information
                                         </h4>
                                         <div class="space-y-4 mb-6">
                                             <div>
-                                                <div class="text-sm text-blue-300 mb-1">Current Model</div>
-                                                <div class="font-bold text-lg" id="current-model-name">Weld Neck Flange</div>
+                                                <div class="text-sm text-blue-300 mb-1">Current Product</div>
+                                                <div class="font-bold text-lg" id="current-product-name">Long Weld Neck Flange</div>
                                             </div>
                                             <div>
-                                                <div class="text-sm text-blue-300 mb-1">Format</div>
-                                                <div class="font-medium">GLB (GL Transmission Format)</div>
+                                                <div class="text-sm text-blue-300 mb-1">Reference Code</div>
+                                                <div class="font-medium">ASMEB16.5-900-DN15</div>
                                             </div>
                                             <div>
-                                                <div class="text-sm text-blue-300 mb-1">File Size</div>
-                                                <div class="font-medium" id="model-size">~2.5 MB</div>
+                                                <div class="text-sm text-blue-300 mb-1">Standard</div>
+                                                <div class="font-medium">ASME B16.5</div>
                                             </div>
                                             <div>
-                                                <div class="text-sm text-blue-300 mb-1">Polygons</div>
-                                                <div class="font-medium" id="model-polygons">15,428</div>
+                                                <div class="text-sm text-blue-300 mb-1">Nominal Diameter</div>
+                                                <div class="font-medium">DN15 (1/2")</div>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm text-blue-300 mb-1">Pressure Rating</div>
+                                                <div class="font-medium">Class 900 (150#)</div>
                                             </div>
                                         </div>
                                         
                                         <div class="space-y-3">
-                                            <h5 class="font-bold text-lg mb-2">Controls Guide</h5>
+                                            <h5 class="font-bold text-lg mb-2">Available Formats</h5>
                                             <div class="text-sm text-slate-300 space-y-2">
                                                 <div class="flex items-center gap-2">
-                                                    <i class="fas fa-mouse-pointer text-blue-300"></i>
-                                                    <span>Click & Drag: Rotate model</span>
+                                                    <i class="fas fa-file-pdf text-red-300"></i>
+                                                    <span>Technical Data Sheets (PDF)</span>
                                                 </div>
                                                 <div class="flex items-center gap-2">
-                                                    <i class="fas fa-mouse text-blue-300"></i>
-                                                    <span>Scroll: Zoom in/out</span>
+                                                    <i class="fas fa-file-alt text-blue-300"></i>
+                                                    <span>Specification Documents</span>
                                                 </div>
                                                 <div class="flex items-center gap-2">
-                                                    <i class="fas fa-arrows-alt text-blue-300"></i>
-                                                    <span>Right-click + Drag: Pan view</span>
+                                                    <i class="fas fa-download text-green-300"></i>
+                                                    <span>CAD Drawings (DWG/STEP)</span>
                                                 </div>
                                                 <div class="flex items-center gap-2">
-                                                    <i class="fas fa-mobile-alt text-blue-300"></i>
-                                                    <span>Touch devices: Use gestures</span>
+                                                    <i class="fas fa-clipboard-check text-yellow-300"></i>
+                                                    <span>Certification Documents</span>
                                                 </div>
                                             </div>
                                         </div>
                                         
                                         <div class="mt-6 pt-6 border-t border-slate-700">
-                                            <button onclick="showMeasurementTools()" class="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition mb-3">
-                                                <i class="fas fa-ruler-combined mr-2"></i>Measurement Tools
+                                            <button onclick="downloadProductFiles()" class="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition mb-3">
+                                                <i class="fas fa-download mr-2"></i>Download Technical Files
                                             </button>
-                                            <button onclick="showCrossSection()" class="w-full py-3 bg-slate-800 text-white font-bold rounded-xl hover:bg-slate-700 transition">
-                                                <i class="fas fa-cut mr-2"></i>Cross Section View
+                                            <button onclick="requestCustomQuote()" class="w-full py-3 bg-slate-800 text-white font-bold rounded-xl hover:bg-slate-700 transition">
+                                                <i class="fas fa-file-alt mr-2"></i>Request Custom Quote
                                             </button>
                                         </div>
                                     </div>
@@ -1139,52 +2107,55 @@
                         
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                             <div>
-                                <h3 class="text-4xl font-bold text-slate-900" id="p-title">Weld Neck Flange (WNF)</h3>
+                                <h3 class="text-4xl font-bold text-slate-900" id="p-title">Long Weld Neck Flange (LWN)</h3>
                                 <div class="flex items-center gap-4 mt-2">
                                     <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold">ASME B16.5</span>
-                                    <span class="px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-bold">ISO Certified</span>
-                                    <span class="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-bold">3D Model Available</span>
+                                    <span class="px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-bold">Class 900</span>
+                                    <span class="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-bold">CAD Available</span>
+                                    <span class="px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-xs font-bold">DN15</span>
                                 </div>
                             </div>
                             <div class="flex gap-3">
                                 <button onclick="openOrderModal()" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg font-bold shadow-md hover:from-blue-700 hover:to-blue-900 transition flex items-center gap-2">
                                     <i class="fas fa-shopping-cart"></i>Order Now
                                 </button>
-                                <button onclick="downloadCurrentModel()" class="px-6 py-3 bg-slate-100 text-slate-700 rounded-lg font-bold hover:bg-slate-200 transition flex items-center gap-2">
-                                    <i class="fas fa-download"></i>Download 3D Model
+                                <button onclick="downloadProductFiles()" class="px-6 py-3 bg-slate-100 text-slate-700 rounded-lg font-bold hover:bg-slate-200 transition flex items-center gap-2">
+                                    <i class="fas fa-download"></i>Download Specifications
                                 </button>
                             </div>
                         </div>
                         <p class="text-slate-600 text-xl leading-relaxed mb-10 max-w-4xl" id="p-desc">
-                            The Weld Neck Flange is distinguished from other types by its long tapered hub and gentle transition to the thickness of the pipe. Engineered for high-pressure and high-temperature applications where reliability is critical.
+                            Long Weld Neck flanges are specifically designed for pressure vessel applications and high-pressure piping systems. Featuring an extended neck that provides reinforcement and stress distribution, these flanges are ideal for critical applications where reliability is paramount. Our ASME B16.5 Class 900 DN15 model represents precision engineering for demanding industrial environments.
                         </p>
                         
                         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12" id="p-features">
-                            <!-- Features populated by JS -->
+                            <!-- Features will be populated by JavaScript -->
                         </div>
                         
                         <!-- Additional Product Info -->
                         <div class="bg-blue-50 rounded-2xl p-6 mb-8">
                             <h4 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                <i class="fas fa-cube text-blue-600"></i>3D Model Features
+                                <i class="fas fa-cube text-blue-600"></i>Documentation Available
                             </h4>
                             <div class="grid md:grid-cols-2 gap-6">
                                 <div>
-                                    <h5 class="font-bold text-slate-800 mb-2">Interactive Features</h5>
+                                    <h5 class="font-bold text-slate-800 mb-2">Technical Documents</h5>
                                     <ul class="text-slate-600 space-y-1">
-                                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i>360° rotation and zoom</li>
-                                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i>Augmented Reality (AR) view</li>
-                                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i>Cross-section visualization</li>
-                                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i>Measurement tools</li>
+                                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i>Detailed technical data sheets</li>
+                                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i>Material certification (EN 10204 3.1)</li>
+                                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i>Dimensional drawings with tolerances</li>
+                                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i>Pressure-temperature ratings</li>
+                                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i>Installation and maintenance guides</li>
                                     </ul>
                                 </div>
                                 <div>
                                     <h5 class="font-bold text-slate-800 mb-2">File Formats Available</h5>
                                     <ul class="text-slate-600 space-y-1">
-                                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i>GLB (Web/AR ready)</li>
+                                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i>PDF (Technical data sheets)</li>
                                         <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i>STEP (CAD integration)</li>
+                                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i>DWG (AutoCAD compatible)</li>
                                         <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i>IGES (Engineering design)</li>
-                                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i>STL (3D printing)</li>
+                                        <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i>Excel (Material specifications)</li>
                                     </ul>
                                 </div>
                             </div>
@@ -1245,60 +2216,27 @@
             </div>
         </section>
 
-        <!-- 3D Gallery Section -->
-        <section id="3d-gallery" class="py-24 bg-white reveal">
+        <!-- Product Gallery Section -->
+        <section id="product-gallery" class="py-24 bg-white reveal">
             <div class="max-w-7xl mx-auto px-4">
                 <div class="text-center mb-16">
-                    <span class="text-blue-600 font-bold uppercase tracking-widest text-sm">3D Product Gallery</span>
-                    <h2 class="text-4xl md:text-5xl font-bold text-slate-900 mt-2 mb-4">Explore All Products in 3D</h2>
-                    <p class="text-slate-600 max-w-3xl mx-auto text-lg">Click on any product to view its interactive 3D model with full technical details</p>
+                    <span class="text-blue-600 font-bold uppercase tracking-widest text-sm">Product Gallery</span>
+                    <h2 class="text-4xl md:text-5xl font-bold text-slate-900 mt-2 mb-4">Explore All Products</h2>
+                    <p class="text-slate-600 max-w-3xl mx-auto text-lg">Click on any product to view detailed specifications and technical information</p>
                 </div>
                 
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Weld Neck Flange -->
-                    <div class="bg-slate-50 rounded-3xl overflow-hidden border border-slate-200 hover:border-blue-300 transition-all duration-300">
-                        <div class="model-viewer-container" style="height: 250px;">
-                            <model-viewer 
-                                src="https://modelviewer.dev/shared-assets/models/Astronaut.glb"
-                                alt="Weld Neck Flange 3D"
-                                camera-controls
-                                auto-rotate
-                                style="width:100%; height:100%;"
-                            >
-                            </model-viewer>
-                        </div>
-                        <div class="p-6">
-                            <h4 class="font-bold text-xl text-slate-900 mb-2">Weld Neck Flange</h4>
-                            <p class="text-slate-600 mb-4">High-pressure applications with tapered hub design</p>
-                            <div class="flex gap-3">
-                                <button onclick="updateProduct('wnf')" class="flex-1 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition text-sm">
-                                    <i class="fas fa-expand-alt mr-2"></i>View 3D
-                                </button>
-                                <button onclick="openOrderModalWithProduct('wnf')" class="flex-1 py-2.5 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300 transition text-sm">
-                                    <i class="fas fa-shopping-cart mr-2"></i>Order
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
                     <!-- Long Weld Neck -->
-                    <div class="bg-slate-50 rounded-3xl overflow-hidden border border-slate-200 hover:border-blue-300 transition-all duration-300">
-                        <div class="model-viewer-container" style="height: 250px;">
-                            <model-viewer 
-                                src="https://modelviewer.dev/shared-assets/models/NeilArmstrong.glb"
-                                alt="Long Weld Neck 3D"
-                                camera-controls
-                                auto-rotate
-                                style="width:100%; height:100%;"
-                            >
-                            </model-viewer>
+                    <div class="gallery-product-card bg-slate-50 rounded-3xl overflow-hidden border border-slate-200 hover:border-blue-300 transition-all duration-300">
+                        <div class="product-image-container" style="height: 250px;">
+                            <img src="long weldneck.png" alt="Long Weld Neck Flange" style="object-fit: contain;">
                         </div>
                         <div class="p-6">
-                            <h4 class="font-bold text-xl text-slate-900 mb-2">Long Weld Neck</h4>
-                            <p class="text-slate-600 mb-4">Pressure vessel nozzles with extended hub</p>
+                            <h4 class="font-bold text-xl text-slate-900 mb-2">Long Weld Neck Flange</h4>
+                            <p class="text-slate-600 mb-4">ASME B16.5 Class 900 DN15 with extended hub design</p>
                             <div class="flex gap-3">
                                 <button onclick="updateProduct('lwn')" class="flex-1 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition text-sm">
-                                    <i class="fas fa-expand-alt mr-2"></i>View 3D
+                                    <i class="fas fa-info-circle mr-2"></i>View Details
                                 </button>
                                 <button onclick="openOrderModalWithProduct('lwn')" class="flex-1 py-2.5 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300 transition text-sm">
                                     <i class="fas fa-shopping-cart mr-2"></i>Order
@@ -1307,24 +2245,36 @@
                         </div>
                     </div>
                     
+                    <!-- Weld Neck Flange -->
+                    <div class="gallery-product-card bg-slate-50 rounded-3xl overflow-hidden border border-slate-200 hover:border-blue-300 transition-all duration-300">
+                        <div class="product-image-container" style="height: 250px;">
+                            <img src="weld neck.png" alt="Weld Neck Flange" style="object-fit: contain;">
+                        </div>
+                        <div class="p-6">
+                            <h4 class="font-bold text-xl text-slate-900 mb-2">Weld Neck Flange</h4>
+                            <p class="text-slate-600 mb-4">High-pressure applications with tapered hub design</p>
+                            <div class="flex gap-3">
+                                <button onclick="updateProduct('wnf')" class="flex-1 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition text-sm">
+                                    <i class="fas fa-info-circle mr-2"></i>View Details
+                                </button>
+                                <button onclick="openOrderModalWithProduct('wnf')" class="flex-1 py-2.5 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300 transition text-sm">
+                                    <i class="fas fa-shopping-cart mr-2"></i>Order
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Slip-On Flange -->
-                    <div class="bg-slate-50 rounded-3xl overflow-hidden border border-slate-200 hover:border-blue-300 transition-all duration-300">
-                        <div class="model-viewer-container" style="height: 250px;">
-                            <model-viewer 
-                                src="https://modelviewer.dev/shared-assets/models/RobotExpressive.glb"
-                                alt="Slip-On Flange 3D"
-                                camera-controls
-                                auto-rotate
-                                style="width:100%; height:100%;"
-                            >
-                            </model-viewer>
+                    <div class="gallery-product-card bg-slate-50 rounded-3xl overflow-hidden border border-slate-200 hover:border-blue-300 transition-all duration-300">
+                        <div class="product-image-container" style="height: 250px;">
+                            <img src="slip on flange.png" alt="Slip-On Flange" style="object-fit: contain;">
                         </div>
                         <div class="p-6">
                             <h4 class="font-bold text-xl text-slate-900 mb-2">Slip-On Flange</h4>
                             <p class="text-slate-600 mb-4">Cost-effective solution for standard pressure duty</p>
                             <div class="flex gap-3">
                                 <button onclick="updateProduct('slipon')" class="flex-1 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition text-sm">
-                                    <i class="fas fa-expand-alt mr-2"></i>View 3D
+                                    <i class="fas fa-info-circle mr-2"></i>View Details
                                 </button>
                                 <button onclick="openOrderModalWithProduct('slipon')" class="flex-1 py-2.5 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300 transition text-sm">
                                     <i class="fas fa-shopping-cart mr-2"></i>Order
@@ -1334,23 +2284,16 @@
                     </div>
                     
                     <!-- Blind Flange -->
-                    <div class="bg-slate-50 rounded-3xl overflow-hidden border border-slate-200 hover:border-blue-300 transition-all duration-300">
-                        <div class="model-viewer-container" style="height: 250px;">
-                            <model-viewer 
-                                src="https://modelviewer.dev/shared-assets/models/NeilArmstrong.glb"
-                                alt="Blind Flange 3D"
-                                camera-controls
-                                auto-rotate
-                                style="width:100%; height:100%;"
-                            >
-                            </model-viewer>
+                    <div class="gallery-product-card bg-slate-50 rounded-3xl overflow-hidden border border-slate-200 hover:border-blue-300 transition-all duration-300">
+                        <div class="product-image-container" style="height: 250px;">
+                            <img src="blind.png" alt="Blind Flange" style="object-fit: contain;">
                         </div>
                         <div class="p-6">
                             <h4 class="font-bold text-xl text-slate-900 mb-2">Blind Flange</h4>
                             <p class="text-slate-600 mb-4">System closure and pressure isolation</p>
                             <div class="flex gap-3">
                                 <button onclick="updateProduct('blind')" class="flex-1 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition text-sm">
-                                    <i class="fas fa-expand-alt mr-2"></i>View 3D
+                                    <i class="fas fa-info-circle mr-2"></i>View Details
                                 </button>
                                 <button onclick="openOrderModalWithProduct('blind')" class="flex-1 py-2.5 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300 transition text-sm">
                                     <i class="fas fa-shopping-cart mr-2"></i>Order
@@ -1360,23 +2303,16 @@
                     </div>
                     
                     <!-- Puddle Flange -->
-                    <div class="bg-slate-50 rounded-3xl overflow-hidden border border-slate-200 hover:border-blue-300 transition-all duration-300">
-                        <div class="model-viewer-container" style="height: 250px;">
-                            <model-viewer 
-                                src="https://modelviewer.dev/shared-assets/models/Astronaut.glb"
-                                alt="Puddle Flange 3D"
-                                camera-controls
-                                auto-rotate
-                                style="width:100%; height:100%;"
-                            >
-                            </model-viewer>
+                    <div class="gallery-product-card bg-slate-50 rounded-3xl overflow-hidden border border-slate-200 hover:border-blue-300 transition-all duration-300">
+                        <div class="product-image-container" style="height: 250px;">
+                            <img src="puddle flange.png" alt="Puddle Flange" style="object-fit: contain;">
                         </div>
                         <div class="p-6">
                             <h4 class="font-bold text-xl text-slate-900 mb-2">Puddle Flange</h4>
                             <p class="text-slate-600 mb-4">Waterproofing for pipe penetrations</p>
                             <div class="flex gap-3">
                                 <button onclick="updateProduct('puddle')" class="flex-1 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition text-sm">
-                                    <i class="fas fa-expand-alt mr-2"></i>View 3D
+                                    <i class="fas fa-info-circle mr-2"></i>View Details
                                 </button>
                                 <button onclick="openOrderModalWithProduct('puddle')" class="flex-1 py-2.5 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300 transition text-sm">
                                     <i class="fas fa-shopping-cart mr-2"></i>Order
@@ -1386,23 +2322,16 @@
                     </div>
                     
                     <!-- Plasma CNC -->
-                    <div class="bg-slate-50 rounded-3xl overflow-hidden border border-slate-200 hover:border-blue-300 transition-all duration-300">
-                        <div class="model-viewer-container" style="height: 250px;">
-                            <model-viewer 
-                                src="https://modelviewer.dev/shared-assets/models/RobotExpressive.glb"
-                                alt="Plasma CNC 3D"
-                                camera-controls
-                                auto-rotate
-                                style="width:100%; height:100%;"
-                            >
-                            </model-viewer>
+                    <div class="gallery-product-card bg-slate-50 rounded-3xl overflow-hidden border border-slate-200 hover:border-blue-300 transition-all duration-300">
+                        <div class="product-image-container" style="height: 250px;">
+                            <img src="plasma cutiing.png" alt="Plasma CNC Cutting" style="object-fit: contain;">
                         </div>
                         <div class="p-6">
                             <h4 class="font-bold text-xl text-slate-900 mb-2">Plasma CNC Cutting</h4>
                             <p class="text-slate-600 mb-4">High-precision automated cutting service</p>
                             <div class="flex gap-3">
                                 <button onclick="updateProduct('plasma')" class="flex-1 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition text-sm">
-                                    <i class="fas fa-expand-alt mr-2"></i>View 3D
+                                    <i class="fas fa-info-circle mr-2"></i>View Details
                                 </button>
                                 <button onclick="openOrderModalWithProduct('plasma')" class="flex-1 py-2.5 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300 transition text-sm">
                                     <i class="fas fa-shopping-cart mr-2"></i>Order
@@ -1413,8 +2342,8 @@
                 </div>
                 
                 <div class="text-center mt-16">
-                    <button onclick="showAllModels()" class="px-8 py-3.5 bg-gradient-to-r from-blue-600 to-blue-800 text-white font-bold rounded-xl hover:from-blue-700 hover:to-blue-900 transition shadow-lg">
-                        <i class="fas fa-cube mr-2"></i>View All 3D Models Gallery
+                    <button onclick="showAllProducts()" class="px-8 py-3.5 bg-gradient-to-r from-blue-600 to-blue-800 text-white font-bold rounded-xl hover:from-blue-700 hover:to-blue-900 transition shadow-lg">
+                        <i class="fas fa-boxes mr-2"></i>View All Products Catalog
                     </button>
                 </div>
             </div>
@@ -1536,8 +2465,8 @@
                         </div>
                         <h3 class="text-xl font-bold text-slate-900 mb-3">Call Us</h3>
                         <p class="text-slate-600 mb-4">Speak directly with our technical sales team</p>
-                        <a href="tel:+1234567890" class="text-blue-700 font-bold text-lg hover:text-blue-800">+91 7307709671</a>
-                        <p class="text-slate-500 text-sm mt-2">Mon-Fri, 8:00 AM - 6:00 PM EST</p>
+                        <a href="tel:+919123456789" class="text-blue-700 font-bold text-lg hover:text-blue-800">+91 7307709671</a>
+                        <p class="text-slate-500 text-sm mt-2">Mon-Fri, 8:00 AM - 6:00 PM IST</p>
                     </div>
                     
                     <div class="bg-white p-8 rounded-3xl shadow-lg">
@@ -1559,7 +2488,7 @@
                         <address class="text-slate-700 not-italic font-medium">
                             pipe road kurla west<br>
                             mumbai, pin-400070<br>
-                            india maharastra
+                            india maharashtra
                         </address>
                         <p class="text-slate-500 text-sm mt-2">By appointment only</p>
                     </div>
@@ -1592,22 +2521,22 @@
                     <div>
                         <h4 class="font-bold text-lg mb-6">Products</h4>
                         <ul class="space-y-3 text-slate-400">
-                            <li><a href="#" class="hover:text-white transition">Weld Neck Flanges</a></li>
-                            <li><a href="#" class="hover:text-white transition">Slip-On Flanges</a></li>
-                            <li><a href="#" class="hover:text-white transition">Blind Flanges</a></li>
-                            <li><a href="#" class="hover:text-white transition">Specialty Flanges</a></li>
-                            <li><a href="#" class="hover:text-white transition">Plasma CNC Cutting</a></li>
+                            <li><a href="#" onclick="updateProduct('lwn'); return false;" class="hover:text-white transition">Long Weld Neck Flanges</a></li>
+                            <li><a href="#" onclick="updateProduct('wnf'); return false;" class="hover:text-white transition">Weld Neck Flanges</a></li>
+                            <li><a href="#" onclick="updateProduct('slipon'); return false;" class="hover:text-white transition">Slip-On Flanges</a></li>
+                            <li><a href="#" onclick="updateProduct('blind'); return false;" class="hover:text-white transition">Blind Flanges</a></li>
+                            <li><a href="#" onclick="updateProduct('plasma'); return false;" class="hover:text-white transition">Plasma CNC Cutting</a></li>
                         </ul>
                     </div>
                     
                     <div>
                         <h4 class="font-bold text-lg mb-6">Resources</h4>
                         <ul class="space-y-3 text-slate-400">
-                            <li><a href="#" class="hover:text-white transition">Technical Specifications</a></li>
-                            <li><a href="#" class="hover:text-white transition">CAD Drawings</a></li>
-                            <li><a href="#" class="hover:text-white transition">Material Selection Guide</a></li>
+                            <li><a href="#" onclick="document.getElementById('specifications').scrollIntoView({behavior:'smooth'}); return false;" class="hover:text-white transition">Technical Specifications</a></li>
+                            <li><a href="#" onclick="downloadProductFiles(); return false;" class="hover:text-white transition">CAD Drawings</a></li>
+                            <li><a href="#" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'}); return false;" class="hover:text-white transition">Material Selection Guide</a></li>
                             <li><a href="#" class="hover:text-white transition">Installation Manuals</a></li>
-                            <li><a href="#" class="hover:text-white transition">3D Models</a></li>
+                            <li><a href="#" onclick="showAllProducts(); return false;" class="hover:text-white transition">Product Catalog</a></li>
                         </ul>
                     </div>
                     
@@ -1618,7 +2547,7 @@
                             <li><a href="#" class="hover:text-white transition">Pricing & Delivery</a></li>
                             <li><a href="#" class="hover:text-white transition">Payment Terms</a></li>
                             <li><a href="#" class="hover:text-white transition">Order Tracking</a></li>
-                            <li><a href="#" class="hover:text-white transition">Supplier Portal</a></li>
+                            <li><a href="#" onclick="openDashboard(); return false;" class="hover:text-white transition">Supplier Portal</a></li>
                         </ul>
                     </div>
                 </div>
@@ -1642,6 +2571,10 @@
     </div>
 
     <script>
+        // Global Variables
+        let currentUserType = 'partner';
+        let isSupplier = false; // Track if user is a supplier
+        
         // Enhanced Authentication Management
         function toggleAuthView(view) {
             document.getElementById('login-form').classList.toggle('hidden', view !== 'login');
@@ -1650,6 +2583,20 @@
         
         function closeAuth() {
             document.getElementById('auth-overlay').classList.add('hidden');
+        }
+
+        function setUserType(type) {
+            currentUserType = type;
+            const buttons = document.querySelectorAll('#login-form button[onclick^="setUserType"]');
+            buttons.forEach(btn => {
+                if (btn.textContent.includes(type === 'partner' ? 'Partner' : 'Supplier')) {
+                    btn.classList.add('border-blue-200', 'bg-blue-50', 'text-blue-700');
+                    btn.classList.remove('border-slate-200', 'hover:border-blue-200', 'hover:bg-blue-50');
+                } else {
+                    btn.classList.remove('border-blue-200', 'bg-blue-50', 'text-blue-700');
+                    btn.classList.add('border-slate-200', 'hover:border-blue-200', 'hover:bg-blue-50');
+                }
+            });
         }
 
         function handleAuth(event, userType) {
@@ -1661,6 +2608,9 @@
                 const statusBadge = document.getElementById('user-status');
                 const mobileStatus = document.getElementById('mobile-user-status');
                 
+                // Reset supplier flag
+                isSupplier = false;
+                
                 if (userType === 'visitor') {
                     statusBadge.innerText = 'Visitor Mode';
                     statusBadge.className = 'px-3 py-1.5 bg-blue-50 rounded-full text-xs font-bold text-blue-600 uppercase border border-blue-100';
@@ -1668,6 +2618,22 @@
                     
                     mobileStatus.innerText = 'Visitor Mode';
                     mobileStatus.className = 'px-3 py-2 bg-blue-50 rounded-lg text-sm font-bold text-blue-600';
+                } else if (userType === 'supplier' || currentUserType === 'supplier') {
+                    // Set supplier flag
+                    isSupplier = true;
+                    
+                    statusBadge.innerText = 'Supplier';
+                    statusBadge.className = 'px-3 py-1.5 bg-green-50 rounded-full text-xs font-bold text-green-600 uppercase border border-green-100';
+                    statusBadge.innerHTML = '<i class="fas fa-building mr-1"></i>Supplier';
+                    
+                    mobileStatus.innerText = 'Supplier';
+                    mobileStatus.className = 'px-3 py-2 bg-green-50 rounded-lg text-sm font-bold text-green-600';
+                    
+                    // Add dashboard button to desktop navigation for suppliers only
+                    addDashboardButtonToNav();
+                    
+                    // Add dashboard button to mobile menu for suppliers only
+                    addDashboardButtonToMobileMenu();
                 } else {
                     statusBadge.innerText = 'Partner';
                     statusBadge.className = 'px-3 py-1.5 bg-blue-50 rounded-full text-xs font-bold text-blue-600 uppercase border border-blue-100';
@@ -1682,8 +2648,56 @@
                 loader.style.left = '100%';
                 setTimeout(() => loader.style.left = '-100%', 1200);
                 initReveal();
-                updateProduct('wnf');
+                updateProduct('lwn');
+                
+                if (isSupplier) {
+                    setTimeout(() => {
+                        showNotification('Welcome to Supplier Dashboard! Access your business analytics and manage orders.', 'success');
+                    }, 500);
+                }
             }, 1000);
+        }
+
+        function addDashboardButtonToNav() {
+            const navActions = document.querySelector('.hidden.lg\\:flex.space-x-8.font-medium.text-sm.items-center > .flex.items-center.gap-4');
+            if (!navActions) return;
+            
+            // Remove existing dashboard button if any
+            const existingDashboardBtn = navActions.querySelector('button[onclick="openDashboard()"]');
+            if (existingDashboardBtn) {
+                existingDashboardBtn.remove();
+            }
+            
+            // Add dashboard button before logout button
+            const logoutBtn = navActions.querySelector('button[onclick="logout()"]');
+            if (logoutBtn) {
+                const dashboardBtn = document.createElement('button');
+                dashboardBtn.innerHTML = '<i class="fas fa-chart-bar mr-1"></i>Dashboard';
+                dashboardBtn.className = 'px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition flex items-center gap-2 text-sm';
+                dashboardBtn.onclick = openDashboard;
+                navActions.insertBefore(dashboardBtn, logoutBtn);
+            }
+        }
+
+        function addDashboardButtonToMobileMenu() {
+            const mobileMenuActions = document.querySelector('#mobile-menu .space-y-2');
+            if (!mobileMenuActions) return;
+            
+            // Remove existing dashboard button if any
+            const existingDashboardBtn = mobileMenuActions.querySelector('button[onclick="openDashboard()"]');
+            if (existingDashboardBtn) {
+                existingDashboardBtn.remove();
+            }
+            
+            // Add dashboard button before logout button
+            const logoutBtn = mobileMenuActions.querySelector('button[onclick="logout()"]');
+            if (logoutBtn) {
+                const dashboardBtn = document.createElement('button');
+                dashboardBtn.innerHTML = '<i class="fas fa-chart-bar"></i> Supplier Dashboard';
+                dashboardBtn.className = 'w-full text-left text-blue-600 hover:text-blue-800 font-medium py-2 flex items-center gap-2';
+                dashboardBtn.onclick = openDashboard;
+                mobileMenuActions.insertBefore(dashboardBtn, logoutBtn);
+            }
         }
 
         function logout() {
@@ -1695,6 +2709,8 @@
                 loader.style.left = '100%';
                 setTimeout(() => loader.style.left = '-100%', 1200);
                 toggleMobileMenu(false);
+                closeDashboard();
+                isSupplier = false;
             }, 800);
         }
         
@@ -1706,6 +2722,167 @@
             } else {
                 menu.classList.toggle('active');
             }
+        }
+
+        // Dashboard Functions - Only for Supplier Accounts
+        function openDashboard() {
+            // Check if user is a supplier
+            if (!isSupplier) {
+                showNotification('Dashboard access is only available for supplier accounts.', 'error');
+                return;
+            }
+            
+            document.getElementById('dashboard-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            initDashboardCharts();
+        }
+        
+        function closeDashboard() {
+            document.getElementById('dashboard-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+        
+        function switchDashboardTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('#dashboard-modal .tab-button').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('onclick').includes(tabName));
+            });
+            
+            // Show selected tab content
+            document.querySelectorAll('#dashboard-modal .tab-content').forEach(content => {
+                content.classList.toggle('active', content.id === `dashboard-${tabName}`);
+                content.classList.toggle('hidden', content.id !== `dashboard-${tabName}`);
+            });
+            
+            // Initialize charts if needed
+            if (tabName === 'analytics') {
+                setTimeout(() => {
+                    initAnalyticsCharts();
+                }, 100);
+            }
+        }
+        
+        // Chart Initialization
+        function initDashboardCharts() {
+            // Sales Chart
+            const salesCtx = document.getElementById('salesChart').getContext('2d');
+            new Chart(salesCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Revenue (₹)',
+                        data: [1200000, 1850000, 1500000, 2200000, 2450000, 2847500],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + (value / 1000000).toFixed(1) + 'M';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function initAnalyticsCharts() {
+            // Category Chart
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Weld Neck', 'Long Weld Neck', 'Blind Flange', 'Plasma CNC', 'Others'],
+                    datasets: [{
+                        data: [42, 30, 12, 8, 8],
+                        backgroundColor: [
+                            '#3b82f6',
+                            '#10b981',
+                            '#f59e0b',
+                            '#8b5cf6',
+                            '#64748b'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // Performance Chart
+            const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+            new Chart(performanceCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [
+                        {
+                            label: 'Orders',
+                            data: [32, 45, 38, 52, 47, 56],
+                            backgroundColor: '#3b82f6'
+                        },
+                        {
+                            label: 'Revenue (₹L)',
+                            data: [120, 185, 150, 220, 245, 284],
+                            backgroundColor: '#10b981'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Conversion Chart
+            const conversionCtx = document.getElementById('conversionChart').getContext('2d');
+            new Chart(conversionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Converted', 'Not Converted'],
+                    datasets: [{
+                        data: [68, 32],
+                        backgroundColor: ['#3b82f6', '#e2e8f0']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
         }
 
         // Order Modal Functions
@@ -1839,7 +3016,7 @@
         function simulateSupplierNotification(orderData) {
             console.log('Sending notification to supplier team...');
             console.log('Supplier Email: supplier@ultimateflange.com');
-            console.log('Supplier Phone: +1 (234) 567-8910');
+            console.log('Supplier Phone: +91 7307709671');
             console.log('Order Details:', orderData);
             
             // In production, you would make an API call here
@@ -1858,14 +3035,42 @@
             }, 1000);
         }
 
-        // Product Data with 3D Models
+        // Product Data with image references
         const productData = {
+            lwn: {
+                title: "Long Weld Neck Flange (LWN)",
+                desc: "ASME B16.5 Class 900 DN15 Long Weld Neck flange with extended hub design for pressure vessel applications. Engineered for high-pressure systems where reliability and structural integrity are critical. Manufactured with full traceability and compliance to international standards.",
+                features: [
+                    "ASME B16.5 Class 900 compliant",
+                    "Nominal Diameter: DN15 (1/2\")",
+                    "Extended hub for stress distribution",
+                    "Full material traceability",
+                    "Precision machined sealing surface",
+                    "Ideal for pressure vessel connections"
+                ],
+                image: "long weldneck.png",
+                specs: {
+                    general: {
+                        "Reference": "ASMEB16.5-900-DN15",
+                        "Standard": "ASME B16.5",
+                        "Nominal Pressure": "150",
+                        "Nominal Diameter": "15 mm (1/2\")",
+                        "Design": "Flange ASME B16.5 - ASME 900 - Long Weld Neck",
+                        "Supplier": "CAMAN",
+                        "OmniClass23": "23.27.45.29"
+                    },
+                    materials: {
+                        "Stainless Steel": "ASTM A182 F316/316L, F304/304L",
+                        "Carbon Steel": "ASTM A105, A350 LF2",
+                        "Alloy Steel": "ASTM A182 F11, F22, F91",
+                        "Duplex Steel": "A182 F51 (2205), F53 (2507)",
+                        "Special Alloys": "Inconel 625, Monel 400, Hastelloy"
+                    }
+                }
+            },
             wnf: {
                 title: "Weld Neck Flange (WNF)",
                 desc: "High-performance flanges engineered for severe service conditions, featuring a long tapered hub that reduces stress concentrations and improves fatigue resistance. Ideal for high-pressure, high-temperature, and cryogenic applications.",
-                model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
-                modelSize: "2.3 MB",
-                polygons: "18,542",
                 features: [
                     "Designed for high-pressure systems (up to 2500#)",
                     "Long tapered hub reduces stress concentration",
@@ -1874,6 +3079,7 @@
                     "ASME B16.5 compliant design",
                     "Available with RF, RTJ, or FF faces"
                 ],
+                image: "weld neck.png",
                 specs: {
                     general: {
                         "Size Range": "1/2\" to 72\" (DN15 to DN1800)",
@@ -1892,42 +3098,9 @@
                     }
                 }
             },
-            lwn: {
-                title: "Long Weld Neck Flange (LWN)",
-                desc: "Commonly used for nozzles on pressure vessels and reactors, LWN flanges provide an extended hub to match nominal pipe size without requiring additional pipe sections or welding preparations.",
-                model3d: "https://modelviewer.dev/shared-assets/models/NeilArmstrong.glb",
-                modelSize: "2.8 MB",
-                polygons: "22,156",
-                features: [
-                    "Extended hub reduces required welding",
-                    "Ideal for pressure vessel connections",
-                    "Heavy wall construction for reinforcement",
-                    "Standardized neck dimensions per ASME",
-                    "Smooth bore transition"
-                ],
-                specs: {
-                    general: {
-                        "Size Range": "1/2\" to 24\" (DN15 to DN600)",
-                        "Standards": "ASME B16.5, API 605",
-                        "Pressure Ratings": "150# to 2500#",
-                        "Face Types": "RF, RTJ",
-                        "Neck Length": "Per MSS SP-44 or customer spec",
-                        "Application": "Pressure Vessel Nozzles"
-                    },
-                    materials: {
-                        "Stainless Steel": "A182 F316/316L, F304H",
-                        "Carbon Steel": "A105, A350 LF2, A266 Cl.2",
-                        "Alloy Steel": "A182 F9, F11, F22",
-                        "Special Alloys": "Inconel 625, Alloy 20"
-                    }
-                }
-            },
             slipon: {
                 title: "Slip-On Flange",
                 desc: "A cost-effective flange solution that slides over the pipe and is welded both inside and outside for strength. Easier to align than weld neck flanges and suitable for lower pressure applications.",
-                model3d: "https://modelviewer.dev/shared-assets/models/RobotExpressive.glb",
-                modelSize: "1.9 MB",
-                polygons: "15,428",
                 features: [
                     "Lower installation cost and time",
                     "Easy alignment during installation",
@@ -1935,6 +3108,7 @@
                     "Internal and external welding for strength",
                     "Available in raised face or flat face"
                 ],
+                image: "slip on flange.png",
                 specs: {
                     general: {
                         "Size Range": "1/2\" to 60\" (DN15 to DN1500)",
@@ -1955,9 +3129,6 @@
             blind: {
                 title: "Blind Flange",
                 desc: "Used to seal the end of a piping system, pressure vessel, or valve. Designed to handle high stress from internal pressure and provide a positive shut-off for maintenance or future expansion.",
-                model3d: "https://modelviewer.dev/shared-assets/models/NeilArmstrong.glb",
-                modelSize: "2.1 MB",
-                polygons: "16,892",
                 features: [
                     "Pressure isolation and system closure",
                     "Removable for maintenance access",
@@ -1965,6 +3136,7 @@
                     "Critical safety shut-off component",
                     "Available with or without jack screw holes"
                 ],
+                image: "blind.png",
                 specs: {
                     general: {
                         "Size Range": "1/2\" to 72\" (DN15 to DN1800)",
@@ -1985,9 +3157,6 @@
             puddle: {
                 title: "Puddle Flange",
                 desc: "Specialty flange used in construction to prevent fluid seepage where pipes pass through concrete walls or foundations. Provides a watertight seal between pipe and structure.",
-                model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
-                modelSize: "2.5 MB",
-                polygons: "19,234",
                 features: [
                     "Waterproofing for pipe penetrations",
                     "Cast iron or fabricated construction",
@@ -1995,6 +3164,7 @@
                     "Watertight seal with concrete",
                     "Available with or without anchoring studs"
                 ],
+                image: "puddle flange.png",
                 specs: {
                     general: {
                         "Size Range": "DN50 to DN2000",
@@ -2014,9 +3184,6 @@
             plasma: {
                 title: "Plasma CNC Cutting",
                 desc: "High-precision automated plasma cutting service for custom plate shapes, flange blanks, and structural components with tight tolerances and superior edge quality.",
-                model3d: "https://modelviewer.dev/shared-assets/models/RobotExpressive.glb",
-                modelSize: "3.2 MB",
-                polygons: "25,678",
                 features: [
                     "Cutting capacity up to 100mm thickness",
                     "Complex CAD geometry translation",
@@ -2024,6 +3191,7 @@
                     "Superior edge finish with minimal dross",
                     "Nesting optimization for material efficiency"
                 ],
+                image: "plasma cutting.png",
                 specs: {
                     general: {
                         "Max Plate Size": "3000mm x 6000mm (10' x 20')",
@@ -2043,9 +3211,6 @@
             profile: {
                 title: "Profile Cutting Services",
                 desc: "Heavy-duty oxy-fuel profile cutting for thick carbon steel sections, base plates, and structural components used in bridges, buildings, and heavy machinery.",
-                model3d: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
-                modelSize: "3.8 MB",
-                polygons: "28,945",
                 features: [
                     "Extreme thickness capability (300mm+)",
                     "Structural integrity preservation",
@@ -2053,6 +3218,7 @@
                     "Precision oxy-fuel technology",
                     "Straightness within 1mm per meter"
                 ],
+                image: "images/profile-cutting.jpg",
                 specs: {
                     general: {
                         "Max Thickness": "350mm (14\") carbon steel",
@@ -2071,98 +3237,35 @@
             }
         };
 
-        // 3D Model Control Functions
-        function resetModelView(type = 'product') {
-            const viewerId = type === 'hero' ? 'hero-model-viewer' : 'product-model-viewer';
-            const modelViewer = document.getElementById(viewerId);
-            if (modelViewer) {
-                modelViewer.resetTurntableRotation();
-                modelViewer.cameraOrbit = '0deg 75deg 105%';
-                modelViewer.fieldOfView = '30deg';
-                showNotification('Model view reset', 'success');
-            }
-        }
-
-        function toggleAutoRotate(type = 'product') {
-            const viewerId = type === 'hero' ? 'hero-model-viewer' : 'product-model-viewer';
-            const modelViewer = document.getElementById(viewerId);
-            if (modelViewer) {
-                modelViewer.autoRotate = !modelViewer.autoRotate;
-                const button = event.target.closest('button');
-                if (button) {
-                    const icon = button.querySelector('i');
-                    if (icon) {
-                        icon.className = modelViewer.autoRotate ? 'fas fa-pause' : 'fas fa-play';
-                    }
-                    button.querySelector('span').textContent = modelViewer.autoRotate ? ' Stop Rotate' : ' Auto Rotate';
-                }
-                showNotification(`Auto-rotate ${modelViewer.autoRotate ? 'enabled' : 'disabled'}`, 'info');
-            }
-        }
-
-        function downloadCurrentModel() {
+        // Product Functions
+        function downloadProductFiles() {
             const currentProduct = getCurrentProduct();
             if (currentProduct && currentProduct.title) {
-                showNotification(`Preparing ${currentProduct.title} CAD files for download...`, 'info');
-                // In production, this would trigger actual file download
+                showNotification(`Preparing ${currentProduct.title} technical files for download...`, 'info');
                 setTimeout(() => {
-                    showNotification(`${currentProduct.title} CAD files ready for download`, 'success');
-                    // Simulate download
+                    showNotification(`${currentProduct.title} technical files ready for download`, 'success');
                     const link = document.createElement('a');
-                    link.href = currentProduct.model3d;
-                    link.download = `${currentProduct.title.replace(/\s+/g, '_')}.glb`;
+                    link.href = '#';
+                    link.download = `${currentProduct.title.replace(/\s+/g, '_')}_technical_specs.pdf`;
                     link.click();
                 }, 1500);
             }
         }
 
-        function downloadHeroModel() {
-            showNotification('Downloading hero model CAD files...', 'info');
-            setTimeout(() => {
-                showNotification('Hero model CAD files downloaded', 'success');
-            }, 1500);
+        function requestCustomQuote() {
+            openOrderModal();
+            showNotification('Custom quote request form opened', 'info');
         }
 
-        function takeScreenshot() {
-            const modelViewer = document.getElementById('product-model-viewer');
-            if (modelViewer) {
-                modelViewer.takeScreenshot().then((blob) => {
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = '3d-model-screenshot.png';
-                    link.click();
-                    showNotification('Screenshot saved!', 'success');
-                });
-            }
-        }
-
-        function showMeasurementTools() {
-            showNotification('Measurement tools activated. Click on points to measure distances.', 'info');
-            // In a real implementation, you would add measurement functionality here
-        }
-
-        function showCrossSection() {
-            const modelViewer = document.getElementById('product-model-viewer');
-            if (modelViewer) {
-                // Toggle cross-section
-                const currentX = modelViewer.getAttribute('cross-section-x') || '0';
-                const newX = currentX === '0' ? '0.5' : '0';
-                modelViewer.setAttribute('cross-section-x', newX);
-                showNotification(`Cross-section ${newX === '0' ? 'hidden' : 'shown'}`, 'info');
-            }
-        }
-
-        function showAllModels() {
-            // Scroll to 3D gallery section
-            document.getElementById('3d-gallery').scrollIntoView({ 
+        function showAllProducts() {
+            document.getElementById('product-gallery').scrollIntoView({ 
                 behavior: 'smooth',
                 block: 'start'
             });
-            showNotification('Viewing all 3D models gallery', 'info');
+            showNotification('Viewing all products gallery', 'info');
         }
 
         function showNotification(message, type = 'info') {
-            // Create notification element
             const notification = document.createElement('div');
             notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium transform transition-all duration-300 ${
                 type === 'success' ? 'bg-green-600' : 
@@ -2178,7 +3281,6 @@
             
             document.body.appendChild(notification);
             
-            // Remove after 3 seconds
             setTimeout(() => {
                 notification.style.transform = 'translateX(100%)';
                 setTimeout(() => notification.remove(), 300);
@@ -2191,34 +3293,32 @@
                 const chipId = activeChip.id.replace('chip-', '');
                 return productData[chipId];
             }
-            return productData.wnf;
+            return productData.lwn;
         }
 
         function updateProduct(key) {
-            const data = productData[key] || productData.wnf;
+            const data = productData[key] || productData.lwn;
             
             // Update active chip
             document.querySelectorAll('.flange-chip').forEach(c => c.classList.remove('active'));
             const activeChip = document.getElementById(`chip-${key}`);
             if (activeChip) activeChip.classList.add('active');
 
-            // Update 3D Model in product viewer
-            const productModelViewer = document.getElementById('product-model-viewer');
-            if (productModelViewer && data.model3d) {
-                productModelViewer.src = data.model3d;
-                productModelViewer.alt = data.title;
-                
-                // Update model info
-                document.getElementById('current-model-name').textContent = data.title;
-                document.getElementById('model-size').textContent = data.modelSize || '~2.5 MB';
-                document.getElementById('model-polygons').textContent = data.polygons || '15,428';
+            // Update product image
+            const productImage = document.getElementById('product-main-image');
+            if (data.image && productImage) {
+                productImage.src = data.image;
+                productImage.alt = data.title;
             }
+
+            // Update product info
+            document.getElementById('current-product-name').textContent = data.title;
 
             // Update product details
             document.getElementById('p-title').innerText = data.title;
             document.getElementById('p-desc').innerText = data.desc;
             
-            // Update features with staggered animation
+            // Update features
             const featuresContainer = document.getElementById('p-features');
             featuresContainer.innerHTML = data.features.map((f, i) => `
                 <div class="feature-card p-5 rounded-2xl opacity-100 reveal stagger-delay-${i % 4}">
@@ -2242,16 +3342,15 @@
             setTimeout(() => {
                 productCard.style.opacity = '1';
                 productCard.style.transform = 'translateY(0)';
-                initReveal(); // Re-initialize reveal for new elements
+                initReveal();
                 
-                // Scroll to product section
                 document.getElementById('products').scrollIntoView({ 
                     behavior: 'smooth',
                     block: 'start'
                 });
             }, 50);
             
-            showNotification(`Loaded ${data.title} 3D model`, 'success');
+            showNotification(`Loaded ${data.title} details`, 'success');
         }
 
         function renderSpecTables(specs) {
@@ -2301,7 +3400,6 @@
             const term = query.toLowerCase().trim();
             if (term.length < 2) return;
             
-            // Search in titles and keys
             for (const [key, data] of Object.entries(productData)) {
                 if (data.title.toLowerCase().includes(term) || 
                     key.includes(term) || 
@@ -2328,43 +3426,11 @@
             reveals.forEach(r => observer.observe(r));
         }
 
-        // Initialize 3D model controls
-        function init3DControls() {
-            // Rotation speed control
-            const rotationSlider = document.getElementById('rotation-speed');
-            if (rotationSlider) {
-                rotationSlider.addEventListener('input', function(e) {
-                    const modelViewer = document.getElementById('product-model-viewer');
-                    if (modelViewer) {
-                        const speed = parseFloat(e.target.value);
-                        modelViewer.autoRotateDelay = 0;
-                        modelViewer.autoRotate = speed > 0;
-                        if (speed > 0) {
-                            modelViewer.autoRotateSpeed = `${speed * 10}deg`;
-                        }
-                    }
-                });
-            }
-
-            // Zoom level control
-            const zoomSlider = document.getElementById('zoom-level');
-            if (zoomSlider) {
-                zoomSlider.addEventListener('input', function(e) {
-                    const modelViewer = document.getElementById('product-model-viewer');
-                    if (modelViewer) {
-                        const zoom = parseInt(e.target.value);
-                        const fov = 60 - (zoom * 3);
-                        modelViewer.fieldOfView = `${Math.max(10, fov)}deg`;
-                    }
-                });
-            }
-        }
-
         // Initialize
         window.onload = () => {
-            updateProduct('wnf');
+            setUserType('partner');
+            updateProduct('lwn');
             initReveal();
-            init3DControls();
             
             // Close mobile menu when clicking outside
             document.addEventListener('click', (e) => {
@@ -2378,12 +3444,16 @@
                 }
             });
             
-            // Close order modal on escape key
+            // Close modals on escape key
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     const orderModal = document.getElementById('order-modal');
                     if (orderModal && !orderModal.classList.contains('hidden')) {
                         closeOrderModal();
+                    }
+                    const dashboardModal = document.getElementById('dashboard-modal');
+                    if (dashboardModal && !dashboardModal.classList.contains('hidden')) {
+                        closeDashboard();
                     }
                 }
             });
@@ -2397,18 +3467,6 @@
                         document.getElementById('order-material').value = 'stainless';
                     }
                 }
-            });
-            
-            // Initialize all gallery model viewers
-            const galleryViewers = document.querySelectorAll('#3d-gallery model-viewer');
-            galleryViewers.forEach(viewer => {
-                viewer.addEventListener('click', function() {
-                    const productKey = this.closest('.bg-slate-50').querySelector('button').onclick
-                        .toString().match(/updateProduct\('(\w+)'\)/)[1];
-                    if (productKey) {
-                        updateProduct(productKey);
-                    }
-                });
             });
         };
     </script>
